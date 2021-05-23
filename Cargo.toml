@@ -6,9 +6,9 @@ authors = ["Oscar Beaumont <oscar@otbeaumont.me>"]
 edition = "2018"
 license = "MIT"
 
-homepage = "https://github.com/LukeMathWalker/tracing-actix-web"
+homepage = "https://github.com/oscartbeaumont/tracing-actix-web"
 documentation = "https://docs.rs/tracing-actix-web2"
-repository = "https://github.com/LukeMathWalker/tracing-actix-web"
+repository = "https://github.com/oscartbeaumont/tracing-actix-web"
 readme = "README.md"
 
 keywords = ["http", "actix-web", "tracing", "logging"]
