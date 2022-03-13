@@ -1,4 +1,4 @@
-use actix_web::http::{HeaderName, HeaderValue};
+use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error,
@@ -17,13 +17,12 @@ pub const REQUEST_ID_HEADER: &str = "x-request-id";
 
 pub struct Tracer;
 
-impl<S, B> Transform<S> for Tracer
+impl<S, B> Transform<S, ServiceRequest> for Tracer
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
     B: 'static,
 {
-    type Request = ServiceRequest;
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
@@ -41,24 +40,23 @@ pub struct TracerMiddleware<S> {
     pub service: Rc<RefCell<S>>,
 }
 
-impl<S, B> Service for TracerMiddleware<S>
+impl<S, B> Service<ServiceRequest> for TracerMiddleware<S>
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
     B: 'static,
 {
-    type Request = ServiceRequest;
     type Response = ServiceResponse<B>;
     type Error = S::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx)
     }
 
-    fn call(&mut self, req: ServiceRequest) -> Self::Future {
+    fn call(&self, req: ServiceRequest) -> Self::Future {
         let request_id = Uuid::new_v4().to_string();
-        let root_span = span!(Level::INFO, "HttpRequest", %request_id, method = req.method().as_str(), path = req.path(), query = req.query_string(), remote_ip = req.connection_info().remote_addr().unwrap_or("-"));
+        let root_span = span!(Level::INFO, "HttpRequest", %request_id, method = req.method().as_str(), path = req.path(), query = req.query_string(), remote_ip = req.connection_info().peer_addr().unwrap_or("-"));
 
         let fut = self.service.call(req);
         Box::pin(
