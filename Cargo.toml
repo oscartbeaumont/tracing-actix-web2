@@ -3,7 +3,7 @@ name = "tracing-actix-web2"
 description = "Rust tracing adapter for Actix Web"
 version = "1.0.0"
 authors = ["Oscar Beaumont <oscar@otbeaumont.me>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 homepage = "https://github.com/oscartbeaumont/tracing-actix-web"
@@ -15,7 +15,7 @@ keywords = ["http", "actix-web", "tracing", "logging"]
 categories = ["asynchronous", "web-programming"]
 
 [dependencies]
-futures = "0.3.15"
-actix-web = "3.3.2"
-tracing = "0.1.26"
+futures = "0.3.21"
+actix-web = "4.0.1"
+tracing = "0.1.32"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
